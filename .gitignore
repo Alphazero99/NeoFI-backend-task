@@ -1,0 +1,6 @@
+.env
+venv
+alembic
+__pycache__
+alembic.ini
+collaborative_events.db
