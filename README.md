@@ -42,11 +42,15 @@ BACKEND_CORS_ORIGINS=["http://localhost:3000", "http://localhost:8080"]
 ``` 
 
 ### 4. Install the dependencies 
-```bash pip install -r requirements.txt 
+```bash
+pip install -r requirements.txt 
 ```
 
 ### 5. Run the Application 
-```bash uvicorn app.main:app --reload 
+```bash
+uvicorn app.main:app --reload 
 ```
 ### 6. Run the test application 
-```bash python test_api.py ```
+```bash 
+python test_api.py
+```
