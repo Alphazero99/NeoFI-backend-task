@@ -1,4 +1,4 @@
-# File: app/api/routes/events.py
+
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
@@ -25,7 +25,7 @@ def create_event(
     """
     Create a new event with current user as owner.
     """
-    # Check for conflicts if needed
+  
     conflicts = event_crud.check_for_conflicts(
         db, user_id=current_user.id, 
         start_time=event_in.start_time, 
@@ -58,7 +58,7 @@ def read_events(
     """
     from datetime import datetime
     
-    # Create filter params
+    
     filter_params = EventFilterParams(
         start_date=datetime.fromisoformat(start_date) if start_date else None,
         end_date=datetime.fromisoformat(end_date) if end_date else None,
@@ -67,17 +67,17 @@ def read_events(
         include_recurring=include_recurring
     )
     
-    # Get total count for pagination
+   
     total = event_crud.count_user_events(db, user_id=current_user.id, filter_params=filter_params)
     
-    # Get events
+   
     events = event_crud.get_user_events(
         db, user_id=current_user.id, 
         skip=skip, limit=limit,
         filter_params=filter_params
     )
     
-    # Calculate pagination info
+   
     page = skip // limit + 1 if limit > 0 else 1
     pages = math.ceil(total / limit) if limit > 0 else 1
     
@@ -121,29 +121,29 @@ def update_event(
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     
-    # Check for time conflicts if changing time
+   
     if event_in.start_time or event_in.end_time:
         start_time = event_in.start_time or event.start_time
         end_time = event_in.end_time or event.end_time
         
-        # Check if end time is after start time
+      
         if end_time < start_time:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="End time must be after start time"
             )
         
-        # Check for conflicts with other events
+     
         conflicts = event_crud.check_for_conflicts(
             db, user_id=current_user.id, 
             start_time=start_time, 
             end_time=end_time
         )
         
-        # Filter out current event from conflicts
+        
         conflicts = [e for e in conflicts if e.id != id]
     
-    # Update the event
+  
     event = event_crud.update_with_version(
         db=db, db_obj=event, obj_in=event_in, user_id=current_user.id
     )
@@ -157,7 +157,7 @@ def delete_event(
     db: Session = Depends(get_db),
     id: int,
     current_user: User = Depends(get_event_owner)
-) -> None:  # Change return type to None
+) -> None:  
     """
     Delete an event.
     """
@@ -166,7 +166,7 @@ def delete_event(
         raise HTTPException(status_code=404, detail="Event not found")
     
     event_crud.remove(db=db, id=id)
-    # Don't return anything for 204 responses
+ 
 
 
 @router.post("/batch", response_model=List[Event], status_code=status.HTTP_201_CREATED)
@@ -179,14 +179,14 @@ def create_batch_events(
     """
     Create multiple events in a batch.
     """
-    # Check if there are events to create
+  
     if not batch_in.events:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No events provided"
         )
     
-    # Create events
+    
     events = event_crud.create_batch(
         db=db, obj_ins=batch_in.events, owner_id=current_user.id
     )

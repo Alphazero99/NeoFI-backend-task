@@ -1,4 +1,4 @@
-# File: app/api/routes/collaboration.py
+
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -29,7 +29,7 @@ def share_event(
     created_permissions = []
     
     for permission_in in share_in.users:
-        # Check if user exists
+        
         user = user_crud.get(db, id=permission_in.user_id)
         if not user:
             raise HTTPException(
@@ -37,12 +37,12 @@ def share_event(
                 detail=f"User with id {permission_in.user_id} not found"
             )
             
-        # Skip if trying to change owner's permission
+      
         event = db.query(permission_crud.model).filter_by(event_id=id, user_id=current_user.id).first()
         if event and permission_in.user_id == current_user.id:
             continue
             
-        # Create or update permission
+    
         permission = permission_crud.create_with_event_user(
             db=db, 
             obj_in=PermissionCreate(
@@ -68,10 +68,10 @@ def get_event_permissions(
     """
     List all permissions for an event.
     """
-    # Get users with permissions
+   
     users_with_permissions = permission_crud.get_event_users_with_permissions(db, event_id=id)
     
-    # Format for response
+ 
     permissions = []
     for user_id, role, username, email in users_with_permissions:
         permissions.append(
@@ -101,22 +101,20 @@ def update_permission(
     """
     Update permissions for a user.
     """
-    # Check if user exists
+
     user = user_crud.get(db, id=user_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-        
-    # Check if trying to change owner's permission
+
     if permission_crud.check_user_is_owner(db, event_id=id, user_id=user_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot change owner's permission"
         )
-        
-    # Update permission
+
     permission = permission_crud.update_user_permission(
         db=db,
         event_id=id,
@@ -141,11 +139,11 @@ def remove_permission(
     id: int,
     user_id: int,
     current_user: User = Depends(get_event_owner)
-) -> None:  # Change return type to None
+) -> None:  
     """
     Remove access for a user.
     """
-    # Check if user exists
+    
     user = user_crud.get(db, id=user_id)
     if not user:
         raise HTTPException(
@@ -153,14 +151,14 @@ def remove_permission(
             detail="User not found"
         )
         
-    # Check if trying to remove owner's permission
+    
     if permission_crud.check_user_is_owner(db, event_id=id, user_id=user_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot remove owner's permission"
         )
         
-    # Remove permission
+ 
     permission = permission_crud.remove_user_permission(
         db=db,
         event_id=id,
@@ -174,4 +172,4 @@ def remove_permission(
             detail="Permission not found"
         )
     
-    # Don't return anything for 204 responses
+    

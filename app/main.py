@@ -1,4 +1,4 @@
-# File: app/main.py
+
 from fastapi import FastAPI, Request, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
@@ -14,7 +14,7 @@ from app.api.routes import auth, events, collaboration, history, changelog
 from app.db.base import Base, engine
 from app.api.deps import get_db
 
-# Create database tables if they don't exist
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -27,7 +27,7 @@ app = FastAPI(
     openapi_version="3.0.2",
 )
 
-# Set up CORS middleware
+
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
@@ -37,7 +37,7 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
-# Setup Redis connection for rate limiting
+
 USE_REDIS = True
 try:
     redis_client = redis.Redis(
@@ -45,9 +45,9 @@ try:
         port=settings.REDIS_PORT,
         password=settings.REDIS_PASSWORD,
         decode_responses=True,
-        socket_connect_timeout=1,  # Short timeout to fail fast
+        socket_connect_timeout=1, 
     )
-    # Test connection
+ 
     redis_client.ping()
     print("Redis connection successful. Rate limiting enabled.")
 except (redis.ConnectionError, redis.exceptions.TimeoutError):
@@ -55,49 +55,48 @@ except (redis.ConnectionError, redis.exceptions.TimeoutError):
     USE_REDIS = False
 
 
-# Rate limiting middleware
+
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next: Callable) -> Response:
     """
     Middleware for rate limiting
     """
-    # Skip rate limiting if Redis is not available
+   
     if not USE_REDIS:
         return await call_next(request)
         
-    # Skip rate limiting for docs
+  
     if request.url.path.startswith("/docs") or request.url.path.startswith("/openapi"):
         return await call_next(request)
     
-    # Get client IP
+  
     client_ip = request.client.host
     
-    # Check if rate limit exceeded
+
     minute_key = f"rate_limit:{client_ip}:{int(time.time()) // 60}"
     
     try:
-        # Increment and check counter
+     
         current = redis_client.incr(minute_key)
         
-        # Set expiry if first request
+   
         if current == 1:
             redis_client.expire(minute_key, 60)
         
-        # Check if limit exceeded
+       
         if current > settings.RATE_LIMIT_PER_MINUTE:
             return JSONResponse(
                 status_code=429,
                 content={"detail": "Rate limit exceeded"}
             )
     except:
-        # If Redis fails, just continue without rate limiting
+
         pass
     
-    # Continue processing request
     return await call_next(request)
 
 
-# Content negotiation middleware
+
 @app.middleware("http")
 async def content_negotiation_middleware(request: Request, call_next: Callable) -> Response:
     """
@@ -105,22 +104,22 @@ async def content_negotiation_middleware(request: Request, call_next: Callable) 
     """
     response = await call_next(request)
     
-    # Check Accept header
+    
     accept = request.headers.get("Accept", "")
     
-    # If client accepts MessagePack and response is JSON, convert to MessagePack
+    
     if "application/x-msgpack" in accept and response.headers.get("content-type") == "application/json":
         response_body = b""
         async for chunk in response.body_iterator:
             response_body += chunk
         
-        # Parse JSON and encode to MessagePack
+     
         import json
         try:
             data = json.loads(response_body)
             msgpack_data = msgpack.packb(data)
             
-            # Create new response
+        
             return Response(
                 content=msgpack_data,
                 status_code=response.status_code,
@@ -128,13 +127,13 @@ async def content_negotiation_middleware(request: Request, call_next: Callable) 
                 media_type="application/x-msgpack"
             )
         except:
-            # If conversion fails, return original response
+ 
             pass
     
     return response
 
 
-# Include routers
+
 app.include_router(
     auth.router,
     prefix=f"{settings.API_V1_STR}/auth",
@@ -162,7 +161,7 @@ app.include_router(
 )
 
 
-# Custom API docs
+
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html() -> HTMLResponse:
     return get_swagger_ui_html(
@@ -188,7 +187,7 @@ async def get_open_api_endpoint() -> JSONResponse:
     return JSONResponse(openapi_schema)
 
 
-# Health check endpoint
+
 @app.get("/health", tags=["health"])
 async def health_check() -> dict:
     return {"status": "ok", "message": "Service is running"}

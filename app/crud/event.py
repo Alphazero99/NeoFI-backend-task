@@ -1,4 +1,4 @@
-# File: app/crud/event.py
+
 from typing import Any, Dict, Optional, Union, List
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_, func
@@ -19,9 +19,9 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         obj_in_data = obj_in.dict()
         db_obj = Event(**obj_in_data, owner_id=owner_id)
         db.add(db_obj)
-        db.flush()  # Get the ID without committing
+        db.flush()  
 
-        # Create the initial version
+      
         version = EventVersion(
             event_id=db_obj.id,
             version_number=1,
@@ -36,7 +36,7 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         )
         db.add(version)
 
-        # Add owner permission
+    
         permission = Permission(
             event_id=db_obj.id,
             user_id=owner_id,
@@ -44,7 +44,7 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         )
         db.add(permission)
 
-        # Add to changelog
+     
         changelog = ChangeLog(
             event_id=db_obj.id,
             user_id=owner_id,
@@ -65,24 +65,24 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         obj_in: Union[EventUpdate, Dict[str, Any]],
         user_id: int
     ) -> Event:
-        # Create a new version
+       
         new_version_number = db_obj.current_version + 1
         
-        # Get the changes for changelog
+      
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
             
-        # Track the changes for the changelog
+       
         changes = {}
         for field in update_data:
             old_value = getattr(db_obj, field)
             new_value = update_data[field]
             
-            # Only track if the value actually changed
+      
             if old_value != new_value:
-                # For complex objects like recurrence_pattern
+             
                 if hasattr(old_value, "__dict__"):
                     old_value = old_value.__dict__
                 if hasattr(new_value, "__dict__"):
@@ -93,7 +93,7 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
                     "new": new_value
                 }
         
-        # Create a new version entry
+   
         version = EventVersion(
             event_id=db_obj.id,
             version_number=new_version_number,
@@ -108,13 +108,13 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         )
         db.add(version)
         
-        # Update the event's current version
+   
         update_data["current_version"] = new_version_number
         
-        # Update the event
+      
         updated_event = super().update(db, db_obj=db_obj, obj_in=update_data)
         
-        # Add to changelog if there were actual changes
+   
         if changes:
             changelog = ChangeLog(
                 event_id=db_obj.id,
@@ -137,14 +137,14 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         limit: int = 100,
         filter_params: Optional[EventFilterParams] = None
     ) -> List[Event]:
-        # Base query: Get events where user has permissions
+   
         query = (
             db.query(Event)
             .join(Permission, Event.id == Permission.event_id)
             .filter(Permission.user_id == user_id)
         )
         
-        # Apply filters if provided
+      
         if filter_params:
             if filter_params.start_date:
                 query = query.filter(Event.end_time >= filter_params.start_date)
@@ -165,14 +165,14 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         user_id: int,
         filter_params: Optional[EventFilterParams] = None
     ) -> int:
-        # Base query: Count events where user has permissions
+      
         query = (
             db.query(func.count(Event.id))
             .join(Permission, Event.id == Permission.event_id)
             .filter(Permission.user_id == user_id)
         )
         
-        # Apply filters if provided
+      
         if filter_params:
             if filter_params.start_date:
                 query = query.filter(Event.end_time >= filter_params.start_date)
@@ -213,30 +213,30 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         user_id: int,
         comment: Optional[str] = None
     ) -> Event:
-        # Get the event and the version to roll back to
+     
         event = self.get(db, id=event_id)
         version = self.get_version(db, event_id, version_id)
         
         if not event or not version:
             return None
             
-        # Create a new version based on the old one
+     
         new_version_number = event.current_version + 1
         
-        # Track changes for changelog
+
         changes = {}
         for field in ['title', 'description', 'start_time', 'end_time', 'location', 'is_recurring', 'recurrence_pattern']:
             old_value = getattr(event, field)
             new_value = getattr(version, field)
             
-            # Only track if the value actually changed
+          
             if old_value != new_value:
                 changes[field] = {
                     "old": old_value,
                     "new": new_value
                 }
         
-        # Create a new version entry that copies the rolled-back version
+       
         new_version = EventVersion(
             event_id=event.id,
             version_number=new_version_number,
@@ -251,7 +251,7 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         )
         db.add(new_version)
         
-        # Update the event with values from the version
+        
         update_data = {
             "title": version.title,
             "description": version.description,
@@ -263,7 +263,7 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
             "current_version": new_version_number,
         }
         
-        # Update the event
+    
         for field, value in update_data.items():
             setattr(event, field, value)
         
@@ -307,7 +307,7 @@ class CRUDEvent(CRUDBase[Event, EventCreate, EventUpdate]):
         """Create multiple events in a batch"""
         created_events = []
         
-        # Use a transaction to ensure all or nothing
+
         for obj_in in obj_ins:
             event = self.create_with_owner(db, obj_in=obj_in, owner_id=owner_id)
             created_events.append(event)

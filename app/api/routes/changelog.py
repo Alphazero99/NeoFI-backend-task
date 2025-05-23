@@ -1,4 +1,4 @@
-# File: app/api/routes/changelog.py
+
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -22,7 +22,7 @@ def get_event_changelog(
     """
     Get a chronological log of all changes to an event.
     """
-    # Check if event exists
+   
     event = event_crud.get(db, id=id)
     if not event:
         raise HTTPException(
@@ -30,7 +30,7 @@ def get_event_changelog(
             detail="Event not found"
         )
         
-    # Get changelog
+    
     changes = changelog_crud.get_event_changelog(db, event_id=id)
     
     return {
@@ -51,7 +51,7 @@ def get_version_diff(
     """
     Get a diff between two versions.
     """
-    # Check if event exists
+  
     event = event_crud.get(db, id=id)
     if not event:
         raise HTTPException(
@@ -59,7 +59,7 @@ def get_version_diff(
             detail="Event not found"
         )
         
-    # Check if versions exist
+   
     v1 = event_crud.get_version(db, event_id=id, version_number=version_id1)
     if not v1:
         raise HTTPException(
@@ -74,7 +74,6 @@ def get_version_diff(
             detail=f"Version {version_id2} not found"
         )
         
-    # Get diff
     diff = changelog_crud.get_diff_between_versions(
         db, 
         event_id=id, 

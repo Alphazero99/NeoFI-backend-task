@@ -1,4 +1,4 @@
-# File: app/models/event.py
+
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, Text, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -16,13 +16,13 @@ class Event(Base):
     end_time = Column(DateTime, nullable=False)
     location = Column(String)
     is_recurring = Column(Boolean, default=False)
-    recurrence_pattern = Column(JSON, nullable=True)  # Store recurrence rules as JSON
+    recurrence_pattern = Column(JSON, nullable=True)  
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     current_version = Column(Integer, default=1)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
+
     owner = relationship("User", back_populates="events")
     permissions = relationship("Permission", back_populates="event", cascade="all, delete-orphan")
     versions = relationship("EventVersion", back_populates="event", cascade="all, delete-orphan")
@@ -45,7 +45,7 @@ class EventVersion(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    # Relationships
+ 
     event = relationship("Event", back_populates="versions")
     created_by = relationship("User")
 

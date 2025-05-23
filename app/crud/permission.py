@@ -1,4 +1,4 @@
-# File: app/crud/permission.py
+
 from typing import List, Optional, Union, Dict, Any
 from sqlalchemy.orm import Session
 
@@ -35,17 +35,17 @@ class CRUDPermission(CRUDBase[Permission, PermissionCreate, PermissionUpdate]):
     def create_with_event_user(
         self, db: Session, *, obj_in: PermissionCreate, created_by_id: int
     ) -> Permission:
-        # Check if permission already exists
+        
         existing = self.get_user_permission(
             db, event_id=obj_in.event_id, user_id=obj_in.user_id
         )
         
         if existing:
-            # Update existing permission
+          
             existing.role = obj_in.role
             db.add(existing)
             
-            # Add to changelog
+            
             changelog = ChangeLog(
                 event_id=obj_in.event_id,
                 user_id=created_by_id,
@@ -61,7 +61,7 @@ class CRUDPermission(CRUDBase[Permission, PermissionCreate, PermissionUpdate]):
             db.refresh(existing)
             return existing
         else:
-            # Create new permission
+        
             db_obj = Permission(
                 event_id=obj_in.event_id,
                 user_id=obj_in.user_id,
@@ -69,7 +69,7 @@ class CRUDPermission(CRUDBase[Permission, PermissionCreate, PermissionUpdate]):
             )
             db.add(db_obj)
             
-            # Add to changelog
+     
             changelog = ChangeLog(
                 event_id=obj_in.event_id,
                 user_id=created_by_id,
@@ -93,19 +93,19 @@ class CRUDPermission(CRUDBase[Permission, PermissionCreate, PermissionUpdate]):
         obj_in: Union[PermissionUpdate, Dict[str, Any]],
         updated_by_id: int
     ) -> Permission:
-        # Get existing permission
+       
         db_obj = self.get_user_permission(db, event_id=event_id, user_id=user_id)
         
         if not db_obj:
             return None
             
-        # Store old role for changelog
+      
         old_role = db_obj.role
         
-        # Update the permission
+        
         db_obj = super().update(db, db_obj=db_obj, obj_in=obj_in)
         
-        # Add to changelog if role changed
+      
         if old_role != db_obj.role:
             changelog = ChangeLog(
                 event_id=event_id,
@@ -125,19 +125,19 @@ class CRUDPermission(CRUDBase[Permission, PermissionCreate, PermissionUpdate]):
     def remove_user_permission(
         self, db: Session, *, event_id: int, user_id: int, removed_by_id: int
     ) -> Permission:
-        # Get existing permission
+     
         db_obj = self.get_user_permission(db, event_id=event_id, user_id=user_id)
         
         if not db_obj:
             return None
             
-        # Store for returning and changelog
+      
         old_role = db_obj.role
         
-        # Delete the permission
+     
         db.delete(db_obj)
         
-        # Add to changelog
+       
         changelog = ChangeLog(
             event_id=event_id,
             user_id=removed_by_id,

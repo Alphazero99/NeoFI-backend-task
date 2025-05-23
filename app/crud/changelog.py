@@ -1,4 +1,4 @@
-# File: app/crud/changelog.py
+
 from typing import List, Dict, Any, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
@@ -23,7 +23,7 @@ class CRUDChangeLog(CRUDBase[ChangeLog, ChangeLogBase, ChangeLogBase]):
         self, db: Session, event_id: int, version1: int, version2: int
     ) -> Dict[str, Any]:
         """Generate a diff between two versions of an event"""
-        # Get the event versions
+     
         v1 = (
             db.query(EventVersion)
             .filter(
@@ -45,16 +45,15 @@ class CRUDChangeLog(CRUDBase[ChangeLog, ChangeLogBase, ChangeLogBase]):
         if not v1 or not v2:
             return None
             
-        # Fields to compare
+       
         fields = ["title", "description", "start_time", "end_time", "location", "is_recurring", "recurrence_pattern"]
-        
-        # Generate diff
+   
         diff = []
         for field in fields:
             old_value = getattr(v1, field)
             new_value = getattr(v2, field)
             
-            # Only include fields that changed
+            
             if old_value != new_value:
                 diff.append({
                     "field": field,

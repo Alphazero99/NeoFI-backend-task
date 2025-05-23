@@ -1,4 +1,4 @@
-# File: app/models/user.py
+
 from datetime import datetime
 from sqlalchemy import Boolean, Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship
@@ -18,7 +18,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
-    events = relationship("Event", back_populates="owner")  # Events owned by user
-    permissions = relationship("Permission", back_populates="user")  # Event permissions
-    event_changes = relationship("ChangeLog", back_populates="user")  # Changes made by user
+  
+    events = relationship("Event", back_populates="owner")  
+    permissions = relationship("Permission", back_populates="user")  
+    event_changes = relationship("ChangeLog", back_populates="user")  

@@ -1,4 +1,4 @@
-# File: app/models/changelog.py
+
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum, JSON, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -26,9 +26,9 @@ class ChangeLog(Base):
     change_type = Column(Enum(ChangeType), nullable=False)
     from_version = Column(Integer, nullable=True)
     to_version = Column(Integer, nullable=True)
-    changes = Column(JSON, nullable=True)  # Store changes as JSON diff
+    changes = Column(JSON, nullable=True)  
     comment = Column(Text, nullable=True)
 
-    # Relationships
+    
     event = relationship("Event", back_populates="changelog")
     user = relationship("User", back_populates="event_changes")

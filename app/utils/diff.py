@@ -1,4 +1,4 @@
-# File: app/utils/diff.py
+
 import json
 from typing import Any, Dict, List, Optional, Union
 from datetime import datetime
@@ -23,11 +23,11 @@ def serialize_value(value: Any) -> Any:
     if isinstance(value, list):
         return [serialize_value(item) for item in value]
     
-    # For objects with __dict__ attribute
+    
     if hasattr(value, "__dict__"):
         return serialize_value(value.__dict__)
     
-    # Fall back to string representation
+    
     return str(value)
 
 
@@ -35,11 +35,11 @@ def generate_field_diff(old_value: Any, new_value: Any) -> Dict[str, Any]:
     """
     Generate a diff for a single field
     """
-    # Serialize values for comparison
+   
     old_serialized = serialize_value(old_value)
     new_serialized = serialize_value(new_value)
     
-    # Generate diff
+
     return {
         "old": old_serialized,
         "new": new_serialized
@@ -52,18 +52,18 @@ def generate_object_diff(old_obj: Dict[str, Any], new_obj: Dict[str, Any]) -> Di
     """
     diff = {}
     
-    # Find all keys in either object
+  
     all_keys = set(old_obj.keys()) | set(new_obj.keys())
     
     for key in all_keys:
         old_value = old_obj.get(key)
         new_value = new_obj.get(key)
         
-        # Skip if values are identical
+       
         if old_value == new_value:
             continue
         
-        # Generate diff for this field
+  
         diff[key] = generate_field_diff(old_value, new_value)
     
     return diff

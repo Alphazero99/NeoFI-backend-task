@@ -1,4 +1,4 @@
-# File: app/api/routes/history.py
+
 from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -23,7 +23,7 @@ def get_event_version(
     """
     Get a specific version of an event.
     """
-    # Check if event exists
+  
     event = event_crud.get(db, id=id)
     if not event:
         raise HTTPException(
@@ -31,7 +31,7 @@ def get_event_version(
             detail="Event not found"
         )
         
-    # Get the version
+
     version = event_crud.get_version(db, event_id=id, version_number=version_id)
     if not version:
         raise HTTPException(
@@ -54,7 +54,7 @@ def rollback_to_version(
     """
     Rollback to a previous version.
     """
-    # Check if event exists
+    
     event = event_crud.get(db, id=id)
     if not event:
         raise HTTPException(
@@ -62,7 +62,7 @@ def rollback_to_version(
             detail="Event not found"
         )
         
-    # Check if version exists
+   
     version = event_crud.get_version(db, event_id=id, version_number=version_id)
     if not version:
         raise HTTPException(
@@ -70,14 +70,14 @@ def rollback_to_version(
             detail=f"Version {version_id} not found"
         )
         
-    # Cannot rollback to current version
+
     if version_id == event.current_version:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot rollback to current version"
         )
         
-    # Perform rollback
+
     comment = None
     if rollback_in:
         comment = rollback_in.comment
@@ -90,7 +90,7 @@ def rollback_to_version(
         comment=comment
     )
     
-    # Get the new version
+
     new_version = event_crud.get_version(
         db, 
         event_id=id, 

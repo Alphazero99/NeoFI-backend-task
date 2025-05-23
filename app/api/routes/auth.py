@@ -1,4 +1,4 @@
-# File: app/api/routes/auth.py
+
 from datetime import timedelta
 from typing import Any
 from app.api.deps import get_db, get_current_active_user
@@ -26,15 +26,14 @@ def register_user(
     """
     Register a new user.
     """
-    # Check if user with same username exists
+
     user = user_crud.get_by_username(db, username=user_in.username)
     if user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already exists"
         )
-        
-    # Check if user with same email exists
+  
     user = user_crud.get_by_email(db, email=user_in.email)
     if user:
         raise HTTPException(
@@ -69,8 +68,7 @@ def login_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Inactive user"
         )
-        
-    # Create access and refresh tokens
+     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         subject=user.id, expires_delta=access_token_expires
@@ -110,11 +108,11 @@ def refresh_token(
         )
         token_data = TokenPayload(**payload)
         
-        # Check token type
+      
         if token_data.type != "refresh":
             raise credentials_exception
             
-        # Check if token is expired
+       
         from datetime import datetime
         if datetime.fromtimestamp(token_data.exp) < datetime.now():
             raise credentials_exception
@@ -125,20 +123,20 @@ def refresh_token(
         if not user:
             raise credentials_exception
             
-        # Check if user is active
+  
         if not user_crud.is_active(user):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Inactive user"
             )
             
-        # Create new access token
+       
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             subject=user.id, expires_delta=access_token_expires
         )
         
-        # Create new refresh token
+    
         new_refresh_token = create_refresh_token(subject=user.id)
         
         return {

@@ -1,4 +1,4 @@
-# File: app/core/security.py
+
 from datetime import datetime, timedelta
 from typing import Any, Optional, Union
 
@@ -10,9 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 
-# Remove this line: from app.api.deps import get_db
-# Remove this line: from app.models.user import User
-# Remove this line: from app.schemas.user import TokenPayload
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")

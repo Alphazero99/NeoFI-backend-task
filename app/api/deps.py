@@ -1,4 +1,4 @@
-# File: app/api/deps.py
+
 from typing import Generator, Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -85,7 +85,7 @@ def get_current_user_with_permission(
         has_permission = permission_crud.check_user_is_owner(db, event_id=event_id, user_id=user_id)
     elif role == RoleType.EDITOR:
         has_permission = permission_crud.check_user_can_edit(db, event_id=event_id, user_id=user_id)
-    else:  # VIEWER
+    else:  
         has_permission = permission_crud.check_user_can_view(db, event_id=event_id, user_id=user_id)
         
     if not has_permission:

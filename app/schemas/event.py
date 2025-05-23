@@ -1,21 +1,21 @@
-# File: app/schemas/event.py
+
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, validator
 from datetime import datetime
 
 
-# Recurrence pattern schema
+
 class RecurrencePattern(BaseModel):
-    frequency: str  # daily, weekly, monthly, yearly
-    interval: int = 1  # every n days, weeks, etc.
-    count: Optional[int] = None  # number of occurrences
-    until: Optional[datetime] = None  # end date
-    weekdays: Optional[List[int]] = None  # 0-6 for Monday-Sunday
-    monthdays: Optional[List[int]] = None  # 1-31 for days of month
-    months: Optional[List[int]] = None  # 1-12 for months
+    frequency: str  
+    interval: int = 1  
+    count: Optional[int] = None  
+    until: Optional[datetime] = None  
+    weekdays: Optional[List[int]] = None  
+    monthdays: Optional[List[int]] = None  
+    months: Optional[List[int]] = None  
 
 
-# Base Event Schema
+
 class EventBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -32,12 +32,12 @@ class EventBase(BaseModel):
         return v
 
 
-# Create Event Schema
+
 class EventCreate(EventBase):
     pass
 
 
-# Update Event Schema
+
 class EventUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
@@ -48,7 +48,7 @@ class EventUpdate(BaseModel):
     recurrence_pattern: Optional[RecurrencePattern] = None
 
 
-# Event in DB Schema
+
 class EventInDBBase(EventBase):
     id: int
     owner_id: int
@@ -60,12 +60,12 @@ class EventInDBBase(EventBase):
         orm_mode = True
 
 
-# Event Schema for responses
+
 class Event(EventInDBBase):
     pass
 
 
-# Event Version Schema
+
 class EventVersion(BaseModel):
     version_number: int
     title: str
@@ -82,12 +82,11 @@ class EventVersion(BaseModel):
         orm_mode = True
 
 
-# Batch Event Creation
+
 class BatchEventCreate(BaseModel):
     events: List[EventCreate]
 
 
-# Event Filter Query Parameters
 class EventFilterParams(BaseModel):
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
@@ -96,7 +95,7 @@ class EventFilterParams(BaseModel):
     include_recurring: bool = True
 
 
-# Pagination
+
 class PaginatedResponse(BaseModel):
     items: List[Any]
     total: int
@@ -105,6 +104,6 @@ class PaginatedResponse(BaseModel):
     pages: int
 
 
-# Event List Response
+
 class EventListResponse(PaginatedResponse):
     items: List[Event]

@@ -1,4 +1,4 @@
-# File: app/models/permission.py
+
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -23,7 +23,7 @@ class Permission(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
+   
     event = relationship("Event", back_populates="permissions")
     user = relationship("User", back_populates="permissions")
 
