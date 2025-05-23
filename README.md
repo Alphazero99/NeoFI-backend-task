@@ -3,10 +3,14 @@ A RESTful API for collaborative event management with authentication, role-based
 
 ## How to Run 
 ### 1. Clone the Repository 
-```bash git clone https://github.com/Alphazero99/NeoFI-backend-task.git cd NeoFI-backend-task ``` 
+```bash 
+git clone https://github.com/Alphazero99/NeoFI-backend-task.git cd NeoFI-backend-task
+``` 
 
 ### 2. Create Virtual Environment 
-```bash python -m venv venv # Windows venv\Scripts\activate # macOS/Linux source venv/bin/activate ``` 
+```bash 
+python -m venv venv # Windows venv\Scripts\activate # macOS/Linux source venv/bin/activate
+``` 
 
 ### 3. Create the .env file 
 ```bash 
